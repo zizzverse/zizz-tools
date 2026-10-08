@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Unit Converter - ZIZZ Tools</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        .converter {
+            max-width: 500px;
+            margin: 25px auto;
+            padding: 20px;
+        }
+
+        .back {
+            background: transparent;
+            color: #aaa;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .converter h1 {
+            margin-bottom: 20px;
+        }
+
+        .converter-box {
+            background: #15151c;
+            border: 1px solid #292932;
+            border-radius: 18px;
+            padding: 18px;
+        }
+
+        .converter-box label {
+            display: block;
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .converter-box select,
+        .converter-box input {
+            width: 100%;
+            height: 50px;
+            background: #20202a;
+            border: 1px solid #30303a;
+            border-radius: 12px;
+            color: white;
+            padding: 0 14px;
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 15px;
+        }
+
+        .converter-box input:focus,
+        .converter-box select:focus {
+            border-color: white;
+        }
+
+        .swap-btn {
+            width: 100%;
+            height: 48px;
+            border-radius: 12px;
+            background: #25252f;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .result {
+            margin-top: 5px;
+            padding: 18px;
+            background: #20202a;
+            border-radius: 14px;
+            text-align: center;
+        }
+
+        .result small {
+            display: block;
+            color: #9999a5;
+            margin-bottom: 6px;
+        }
+
+        .result strong {
+            font-size: 26px;
+        }
+
+        .category-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .category-buttons button {
+            padding: 10px 5px;
+            border-radius: 10px;
+            background: #20202a;
+            color: #aaa;
+            font-size: 12px;
+        }
+
+        .category-buttons button.active {
+            background: white;
+            color: black;
+        }
+
+        @media (max-width: 380px) {
+            .category-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="logo">ZIZZ</div>
+</header>
+
+
+<main class="converter">
+
+    <button class="back" onclick="history.back()">
+        ← Back
+    </button>
+
+    <h1>Unit Converter</h1>
+
+
+    <div class="category-buttons">
+
+        <button class="active" onclick="setCategory('length', this)">
+            Length
+        </button>
+
+        <button onclick="setCategory('weight', this)">
+            Weight
+        </button>
+
+        <button onclick="setCategory('temperature', this)">
+            Temperature
+        </button>
+
+        <button onclick="setCategory('volume', this)">
+            Volume
+        </button>
+
+    </div>
+
+
+    <div class="converter-box">
+
+        <label>From</label>
+
+        <select id="fromUnit"></select>
+
+
+        <label>Value</label>
+
+        <input
+            type="number"
+            id="value"
+            value="1"
+            inputmode="decimal"
+        >
+
+
+        <button class="swap-btn" onclick="swapUnits()">
+            ⇅ Swap Units
+        </button>
+
+
+        <label>To</label>
+
+        <select id="toUnit"></select>
+
+
+        <div class="result">
+
+            <small>Result</small>
+
+            <strong id="result">1</strong>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<script>
+
+let currentCategory = "length";
+
+
+const units = {
+
+    length: {
+        meter: 1,
+        kilometer: 1000,
+        centimeter: 0.01,
+        millimeter: 0.001,
+        inch: 0.0254,
+        foot: 0.3048,
+        yard: 0.9144,
+        mile: 1609.344
+    },
+
+    weight: {
+        kilogram: 1,
+        gram: 0.001,
+        milligram: 0.000001,
+        pound: 0.45359237,
+        ounce: 0.0283495231
+    },
+
+    volume: {
+        liter: 1,
+        milliliter: 0.001,
+        cubic_meter: 1000,
+        gallon: 3.785411784,
+        cup: 0.2365882365
+    }
+
+};
+
+
+const unitNames = {
+
+    meter: "Meter",
+    kilometer: "Kilometer",
+    centimeter: "Centimeter",
+    millimeter: "Millimeter",
+    inch: "Inch",
+    foot: "Foot",
+    yard: "Yard",
+    mile: "Mile",
+
+    kilogram: "Kilogram",
+    gram: "Gram",
+    milligram: "Milligram",
+    pound: "Pound",
+    ounce: "Ounce",
+
+    liter: "Liter",
+    milliliter: "Milliliter",
+    cubic_meter: "Cubic Meter",
+    gallon: "Gallon",
+    cup: "Cup"
+
+};
+
+
+const fromUnit = document.getElementById("fromUnit");
+const toUnit = document.getElementById("toUnit");
+const valueInput = document.getElementById("value");
+const result = document.getElementById("result");
+
+
+function setCategory(category, button) {
+
+    currentCategory = category;
+
+    document
+        .querySelectorAll(".category-buttons button")
+        .forEach(btn => btn.classList.remove("active"));
+
+    button.classList.add("active");
+
+    loadUnits();
+
+    convert();
+}
+
+
+function loadUnits() {
+
+    fromUnit.innerHTML = "";
+    toUnit.innerHTML = "";
+
+
+    if (currentCategory === "temperature") {
+
+        addOption(fromUnit, "celsius", "Celsius");
+        addOption(fromUnit, "fahrenheit", "Fahrenheit");
+        addOption(fromUnit, "kelvin", "Kelvin");
+
+        addOption(toUnit, "celsius", "Celsius");
+        addOption(toUnit, "fahrenheit", "Fahrenheit");
+        addOption(toUnit, "kelvin", "Kelvin");
+
+        fromUnit.value = "celsius";
+        toUnit.value = "fahrenheit";
+
+        return;
+    }
+
+
+    Object.keys(units[currentCategory]).forEach(unit => {
+
+        addOption(
+            fromUnit,
+            unit,
+            unitNames[unit]
+        );
+
+        addOption(
+            toUnit,
+            unit,
+            unitNames[unit]
+        );
+
+    });
+
+
+    toUnit.selectedIndex = 1;
+}
+
+
+function addOption(select, value, text) {
+
+    const option = document.createElement("option");
+
+    option.value = value;
+    option.textContent = text;
+
+    select.appendChild(option);
+}
+
+
+function convert() {
+
+    const value = parseFloat(valueInput.value);
+
+    if (!Number.isFinite(value)) {
+
+        result.textContent = "Enter a number";
+
+        return;
+    }
+
+
+    let converted;
+
+
+    if (currentCategory === "temperature") {
+
+        converted = convertTemperature(
+            value,
+            fromUnit.value,
+            toUnit.value
+        );
+
+    } else {
+
+        const baseValue =
+            value * units[currentCategory][fromUnit.value];
+
+        converted =
+            baseValue / units[currentCategory][toUnit.value];
+
+    }
+
+
+    if (!Number.isFinite(converted)) {
+
+        result.textContent = "Error";
+
+        return;
+    }
+
+
+    result.textContent =
+        Number(converted.toFixed(8)).toString();
+}
+
+
+function convertTemperature(value, from, to) {
+
+    let celsius;
+
+
+    if (from === "celsius") {
+        celsius = value;
+    }
+
+    else if (from === "fahrenheit") {
+        celsius = (value - 32) * 5 / 9;
+    }
+
+    else if (from === "kelvin") {
+        celsius = value - 273.15;
+    }
+
+
+    if (to === "celsius") {
+        return celsius;
+    }
+
+    if (to === "fahrenheit") {
+        return (celsius * 9 / 5) + 32;
+    }
+
+    if (to === "kelvin") {
+        return celsius + 273.15;
+    }
+}
+
+
+function swapUnits() {
+
+    const oldFrom = fromUnit.value;
+    const oldTo = toUnit.value;
+
+    fromUnit.value = oldTo;
+    toUnit.value = oldFrom;
+
+    convert();
+}
+
+
+valueInput.addEventListener("input", convert);
+
+fromUnit.addEventListener("change", convert);
+
+toUnit.addEventListener("change", convert);
+
+
+loadUnits();
+
+convert();
+
+</script>
+
+</body>
+</html>
