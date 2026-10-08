@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Currency Converter - ZIZZ Tools</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        .currency {
+            max-width: 500px;
+            margin: 25px auto;
+            padding: 20px;
+        }
+
+        .back {
+            background: transparent;
+            color: #aaa;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .currency h1 {
+            margin-bottom: 20px;
+        }
+
+        .currency-box {
+            background: #15151c;
+            border: 1px solid #292932;
+            border-radius: 18px;
+            padding: 18px;
+        }
+
+        .currency-box label {
+            display: block;
+            color: #aaa;
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .currency-box input,
+        .currency-box select {
+            width: 100%;
+            height: 52px;
+            background: #20202a;
+            border: 1px solid #30303a;
+            border-radius: 12px;
+            color: white;
+            padding: 0 14px;
+            font-size: 16px;
+            outline: none;
+            margin-bottom: 16px;
+        }
+
+        .swap-btn {
+            width: 100%;
+            height: 48px;
+            border-radius: 12px;
+            background: #25252f;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .convert-btn {
+            width: 100%;
+            height: 52px;
+            border-radius: 12px;
+            background: white;
+            color: black;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .result {
+            margin-top: 18px;
+            padding: 20px;
+            background: #20202a;
+            border-radius: 14px;
+            text-align: center;
+        }
+
+        .result small {
+            display: block;
+            color: #9999a5;
+            margin-bottom: 8px;
+        }
+
+        .result strong {
+            font-size: 28px;
+        }
+
+        .status {
+            text-align: center;
+            color: #9999a5;
+            font-size: 12px;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="logo">ZIZZ</div>
+</header>
+
+
+<main class="currency">
+
+    <button class="back" onclick="history.back()">
+        ← Back
+    </button>
+
+    <h1>Currency Converter</h1>
+
+
+    <div class="currency-box">
+
+        <label>Amount</label>
+
+        <input
+            type="number"
+            id="amount"
+            value="1"
+            min="0"
+            step="any"
+            inputmode="decimal"
+        >
+
+
+        <label>From</label>
+
+        <select id="fromCurrency">
+            <option value="USD">🇺🇸 USD - US Dollar</option>
+            <option value="BDT">🇧🇩 BDT - Bangladeshi Taka</option>
+            <option value="EUR">🇪🇺 EUR - Euro</option>
+            <option value="GBP">🇬🇧 GBP - British Pound</option>
+            <option value="JPY">🇯🇵 JPY - Japanese Yen</option>
+            <option value="INR">🇮🇳 INR - Indian Rupee</option>
+            <option value="SAR">🇸🇦 SAR - Saudi Riyal</option>
+            <option value="AED">🇦🇪 AED - UAE Dirham</option>
+            <option value="KWD">🇰🇼 KWD - Kuwaiti Dinar</option>
+            <option value="CAD">🇨🇦 CAD - Canadian Dollar</option>
+            <option value="AUD">🇦🇺 AUD - Australian Dollar</option>
+            <option value="CNY">🇨🇳 CNY - Chinese Yuan</option>
+        </select>
+
+
+        <button class="swap-btn" id="swapBtn">
+            ⇅ Swap
+        </button>
+
+
+        <label>To</label>
+
+        <select id="toCurrency">
+            <option value="BDT">🇧🇩 BDT - Bangladeshi Taka</option>
+            <option value="USD">🇺🇸 USD - US Dollar</option>
+            <option value="EUR">🇪🇺 EUR - Euro</option>
+            <option value="GBP">🇬🇧 GBP - British Pound</option>
+            <option value="JPY">🇯🇵 JPY - Japanese Yen</option>
+            <option value="INR">🇮🇳 INR - Indian Rupee</option>
+            <option value="SAR">🇸🇦 SAR - Saudi Riyal</option>
+            <option value="AED">🇦🇪 AED - UAE Dirham</option>
+            <option value="KWD">🇰🇼 KWD - Kuwaiti Dinar</option>
+            <option value="CAD">🇨🇦 CAD - Canadian Dollar</option>
+            <option value="AUD">🇦🇺 AUD - Australian Dollar</option>
+            <option value="CNY">🇨🇳 CNY - Chinese Yuan</option>
+        </select>
+
+
+        <button class="convert-btn" id="convertBtn">
+            Convert
+        </button>
+
+
+        <div class="result">
+
+            <small>Converted Amount</small>
+
+            <strong id="result">—</strong>
+
+        </div>
+
+
+        <div class="status" id="status">
+            Ready
+        </div>
+
+    </div>
+
+</main>
+
+
+<script>
+
+const amount = document.getElementById("amount");
+const fromCurrency = document.getElementById("fromCurrency");
+const toCurrency = document.getElementById("toCurrency");
+const convertBtn = document.getElementById("convertBtn");
+const swapBtn = document.getElementById("swapBtn");
+const result = document.getElementById("result");
+const status = document.getElementById("status");
+
+
+async function convertCurrency() {
+
+    const value = Number(amount.value);
+
+    if (!Number.isFinite(value) || value < 0) {
+
+        result.textContent = "Invalid amount";
+        return;
+    }
+
+
+    const from = fromCurrency.value;
+    const to = toCurrency.value;
+
+
+    if (from === to) {
+
+        result.textContent =
+            value.toLocaleString() + " " + to;
+
+        status.textContent = "Same currency";
+
+        return;
+    }
+
+
+    result.textContent = "Loading...";
+    status.textContent = "Getting latest rate...";
+
+
+    try {
+
+        const url =
+            `https://api.frankfurter.dev/v2/rate/${from}/${to}`;
+
+
+        const response = await fetch(url);
+
+
+        if (!response.ok) {
+            throw new Error("Rate unavailable");
+        }
+
+
+        const data = await response.json();
+
+
+        const converted = value * data.rate;
+
+
+        result.textContent =
+            converted.toLocaleString(
+                undefined,
+                {
+                    maximumFractionDigits: 4
+                }
+            ) + " " + to;
+
+
+        status.textContent =
+            `1 ${from} = ${data.rate} ${to} • Rate date: ${data.date}`;
+
+    } catch (error) {
+
+        result.textContent = "Unable to convert";
+
+        status.textContent =
+            "Please check your internet connection.";
+
+    }
+}
+
+
+swapBtn.addEventListener("click", () => {
+
+    const oldFrom = fromCurrency.value;
+
+    fromCurrency.value = toCurrency.value;
