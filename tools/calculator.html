@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Calculator - ZIZZ Tools</title>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <style>
+        .calculator {
+            max-width: 400px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+
+        .calc-display {
+            width: 100%;
+            height: 90px;
+            background: #15151c;
+            border: 1px solid #292932;
+            border-radius: 16px;
+            margin-bottom: 15px;
+            padding: 20px;
+            color: white;
+            font-size: 32px;
+            text-align: right;
+        }
+
+        .calc-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .calc-buttons button {
+            height: 65px;
+            border-radius: 14px;
+            background: #1b1b23;
+            color: white;
+            font-size: 20px;
+        }
+
+        .calc-buttons button:active {
+            transform: scale(0.95);
+        }
+
+        .operator {
+            background: #25252f !important;
+        }
+
+        .equals {
+            background: #ffffff !important;
+            color: #000000 !important;
+        }
+
+        .back {
+            margin-bottom: 20px;
+            background: transparent;
+            color: #aaa;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="logo">ZIZZ</div>
+    </header>
+
+    <main class="calculator">
+
+        <button class="back" onclick="history.back()">
+            ← Back
+        </button>
+
+        <h1>Calculator</h1>
+
+        <br>
+
+        <input
+            type="text"
+            class="calc-display"
+            id="display"
+            value="0"
+            readonly
+        >
+
+        <div class="calc-buttons">
+
+            <button onclick="clearDisplay()">AC</button>
+            <button onclick="deleteNumber()">⌫</button>
+            <button onclick="addValue('%')">%</button>
+            <button class="operator" onclick="addValue('/')">÷</button>
+
+            <button onclick="addValue('7')">7</button>
+            <button onclick="addValue('8')">8</button>
+            <button onclick="addValue('9')">9</button>
+            <button class="operator" onclick="addValue('*')">×</button>
+
+            <button onclick="addValue('4')">4</button>
+            <button onclick="addValue('5')">5</button>
+            <button onclick="addValue('6')">6</button>
+            <button class="operator" onclick="addValue('-')">−</button>
+
+            <button onclick="addValue('1')">1</button>
+            <button onclick="addValue('2')">2</button>
+            <button onclick="addValue('3')">3</button>
+            <button class="operator" onclick="addValue('+')">+</button>
+
+            <button onclick="addValue('0')">0</button>
+            <button onclick="addValue('.')">.</button>
+            <button class="equals" onclick="calculate()">=</button>
+
+        </div>
+
+    </main>
+
+    <script>
+
+        const display = document.getElementById("display");
+
+        function addValue(value) {
+
+            if (display.value === "0") {
+                display.value = value;
+            } else {
+                display.value += value;
+            }
+        }
+
+        function clearDisplay() {
+            display.value = "0";
+        }
+
+        function deleteNumber() {
+
+            if (display.value.length <= 1) {
+                display.value = "0";
+            } else {
+                display.value = display.value.slice(0, -1);
+            }
+        }
+
+        function calculate() {
+
+            try {
+
+                let expression = display.value;
+
+                expression = expression.replace("%", "/100");
+
+                if (!/^[0-9+\-*/.() ]+$/.test(expression)) {
+                    display.value = "Error";
+                    return;
+                }
+
+                const result = Function(
+                    '"use strict"; return (' + expression + ')'
+                )();
+
+                if (!Number.isFinite(result)) {
+                    display.value = "Error";
+                    return;
+                }
+
+                display.value = result;
+
+            } catch {
+                display.value = "Error";
+            }
+        }
+
+    </script>
+
+</body>
+</html>
